@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<reseau>
+<noeud id="0" x="200" y="175"/>
+<noeud id="1" x="325" y="100"/>
+<noeud id="2" x="275" y="325"/>
+<noeud id="3" x="175" y="400"/>
+<noeud id="4" x="350" y="400"/>
+<noeud id="5" x="450" y="250"/>
+<troncon destination="1" longueur="90000" nomRue="v0" origine="0" vitesse="100"/>
+<troncon destination="2" longueur="90000" nomRue="v1" origine="0" vitesse="1"/>
+<troncon destination="3" longueur="90000" nomRue="v2" origine="1" vitesse="100"/>
+<troncon destination="5" longueur="90000" nomRue="v3" origine="1" vitesse="1"/>
+<troncon destination="0" longueur="90000" nomRue="v4" origine="2" vitesse="100"/>
+<troncon destination="3" longueur="90000" nomRue="v5" origine="2" vitesse="100"/>
+<troncon destination="2" longueur="90000" nomRue="v6" origine="3" vitesse="1"/>
+<troncon destination="4" longueur="90000" nomRue="v7" origine="3" vitesse="100"/>
+<troncon destination="2" longueur="90000" nomRue="v8" origine="4" vitesse="100"/>
+<troncon destination="3" longueur="90000" nomRue="v9" origine="4" vitesse="1"/>
+<troncon destination="5" longueur="90000" nomRue="v10" origine="4" vitesse="100"/>
+<troncon destination="0" longueur="90000" nomRue="v11" origine="5" vitesse="1"/>
+<troncon destination="2" longueur="90000" nomRue="v12" origine="5" vitesse="100"/>
+</reseau>

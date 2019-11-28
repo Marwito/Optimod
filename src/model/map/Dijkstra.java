@@ -1,0 +1,214 @@
+package model.map;
+
+import java.util.AbstractMap.SimpleEntry;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import model.graph.EdgeI;
+import model.graph.NodeI;
+
+/**
+ * An implementation of the Dijkstra algorithm
+ * 
+ * @see model.map.EdgeI, model.map.NodeI, model.map.MapI.
+ * @author Marwan, Adrien
+ */
+public class Dijkstra {
+
+	/**
+	 * edges : set of edges between nodes of a graph. blacknodes : set of nodes
+	 * that greynodes : set of nodes that predecessors : time : a set of nodes
+	 * and corresponding times to reach them from the starting node. result :
+	 * the result of the dijkstra algorithm, a graph of nodes and their
+	 * corresponding edges and durations.
+	 */
+	private Set<EdgeI> edges;
+	private Set<NodeI> blackNodes;
+	private Set<NodeI> greyNodes;
+	private HashMap<NodeI, NodeI> predecessors;
+	private HashMap<NodeI, Integer> time;
+	private HashMap<NodeI, Entry<EdgeI, Double>> result = new HashMap<NodeI, Entry<EdgeI, Double>>();
+
+	/**
+	 * Constructor
+	 * 
+	 * Creates a Dijkstra instance with 2 sets of nodes and edges as input
+	 * parameters
+	 * 
+	 * @param nodes
+	 *            Defines a set of nodes
+	 * @param edges
+	 *            Defines a set of edges
+	 */
+	public Dijkstra(Set<EdgeI> edges) {
+		this.edges = new HashSet<EdgeI>(edges);
+	}
+
+	/**
+	 * This method applies the Dijkstra algorithm from a starting node of a
+	 * graph
+	 * 
+	 * @param source
+	 *            Defines the starting node
+	 */
+	public void execute(NodeI source) {
+		result = new HashMap<NodeI, Entry<EdgeI, Double>>();
+		result.put(source, null);
+		blackNodes = null;
+		greyNodes = null;
+		blackNodes = new HashSet<NodeI>();
+		greyNodes = new HashSet<NodeI>();
+		time = new HashMap<NodeI, Integer>();
+		predecessors = new HashMap<NodeI, NodeI>();
+		time.put(source, 0);
+		greyNodes.add(source);
+		while (greyNodes.size() > 0) {
+
+			NodeI node = getMinimum(greyNodes);
+			blackNodes.add(node);
+			greyNodes.remove(node);
+			findMinimalMetrics(node);
+		}
+
+	}
+
+	/**
+	 * This method finds the minimal values of the neighboring edges
+	 * 
+	 * @param node
+	 *            Defines one single node of a graph
+	 */
+	private void findMinimalMetrics(NodeI node) {
+		Set<NodeI> adjacentNodes = getNeighbors(node);
+		for (NodeI target : adjacentNodes) {
+			if (getShortestTime(target) > getShortestTime(node) + getAverageTime(node, target)) {
+				double curTime = getShortestTime(node) + getAverageTime(node, target);
+				EdgeI curEdge = GetEdge(node, target);
+				if (curTime == 0) {
+					result.put(target, null);
+				} else {
+					result.put(target, new SimpleEntry<EdgeI, Double>(curEdge, curTime));
+					time.put(target, getShortestTime(node) + getAverageTime(node, target));
+					predecessors.put(target, node);
+				}
+				greyNodes.add(target);
+			}
+		}
+
+	}
+
+	/**
+	 * Returns the traveling time between 2 nodes
+	 * 
+	 * @param node
+	 *            Defines the starting node
+	 * @param target
+	 *            Defines the arrival node
+	 * @return The traveling time between 2 nodes is returned
+	 */
+	private int getAverageTime(NodeI node, NodeI target) {
+		for (EdgeI edge : edges) {
+			if (edge.getStartNode().equals(node) && edge.getEndNode().equals(target)) {
+				return edge.getAverageTravelTime();
+			}
+		}
+		throw new RuntimeException("Should not happen");
+	}
+
+	/**
+	 * Returns a set of nodes that are neighbors of the node passed as an input
+	 * parameter
+	 * 
+	 * @param node
+	 *            Defines the input node
+	 * @return A set of neighbors of the input node
+	 */
+	private Set<NodeI> getNeighbors(NodeI node) {
+		Set<NodeI> neighbors = new HashSet<NodeI>();
+		for (EdgeI edge : edges) {
+			if (edge.getStartNode().equals(node) && !isSettled(edge.getEndNode())) {
+				neighbors.add(edge.getEndNode());
+			}
+		}
+		return neighbors;
+	}
+
+	/**
+	 * Returns the closest next node among a set of nodes
+	 * 
+	 * @param vertexes
+	 *            Defines a set of nodes
+	 * @return A set of neighbors of the input nodes
+	 */
+	private NodeI getMinimum(Set<NodeI> vertexes) {
+		NodeI minimum = null;
+		for (NodeI vertex : vertexes) {
+			if (minimum == null) {
+				minimum = vertex;
+			} else {
+				if (getShortestTime(vertex) < getShortestTime(minimum)) {
+					minimum = vertex;
+				}
+			}
+		}
+		return minimum;
+	}
+
+	/**
+	 * Checks of a node was went over/already checked or not
+	 * 
+	 * @param vertex
+	 *            Defines a node
+	 * @return An iterator over the node in the set
+	 */
+	private boolean isSettled(NodeI vertex) {
+		return blackNodes.contains(vertex);
+	}
+
+	/**
+	 * Returns the shortest time needed to reach a specific node
+	 * 
+	 * @param destination
+	 *            Defines the destination node
+	 * @return The shortest time to reach the node destination (in seconds)
+	 */
+	private int getShortestTime(NodeI destination) {
+		Integer d = time.get(destination);
+		if (d == null) {
+			return Integer.MAX_VALUE;
+		} else {
+			return d;
+		}
+	}
+
+	/**
+	 * Returns a graph generated by the Dijkstra algorithm
+	 * 
+	 * @return A graph of nodes and their corresponding edges and route
+	 *         durations
+	 */
+	public Map<NodeI, Entry<EdgeI, Double>> getResult() {
+		return result;
+	}
+
+	/**
+	 * Search and return a specific edge between 2 nodes
+	 * 
+	 * @param nStart
+	 *            Defines the starting node
+	 * @param nStart
+	 *            Defines the arrival node
+	 * @return The edge passed as an input parameter if found or null otherwise
+	 */
+	private EdgeI GetEdge(NodeI nStart, NodeI nEnd) {
+		for (EdgeI curEdge : edges) {
+			if (curEdge.getStartNode().equals(nStart) && curEdge.getEndNode().equals(nEnd)) {
+				return curEdge;
+			}
+		}
+		return null;
+	}
+}
